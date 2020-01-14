@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 import 'package:cirrus_map_view/map_view.dart';
 import 'package:flutter/material.dart';
 import 'package:geo_location/Model/Geometry.dart';
@@ -37,7 +38,7 @@ class _MyHomePageState extends State<MyHomePage> {
   MapView mapView = new MapView();
 
  /* change latLng values to check diffrent geolocation are within area or not*/
-  LatLng tap=LatLng(50.8200879, -0.1504184);
+  LatLng tap=LatLng(50.840473, -0.146755);
   @override
   void initState() {
     super.initState();
@@ -57,7 +58,8 @@ class _MyHomePageState extends State<MyHomePage> {
     isLocationWithinArea(tap,geomertyList);
 
     //uncomment below to print output on console
-   // print(isLocationWithinArea(LatLng(50.8404969, -0.1504184),geomertyList));
+    print(isLocationWithinArea(LatLng(50.8404969, -0.1504184),geomertyList));
+    accuracy();
 
 
   }
@@ -92,6 +94,21 @@ class _MyHomePageState extends State<MyHomePage> {
     double x = (pY - bee) / m; // algebra is neat!
 
     return x > pX;
+  }
+  void accuracy(){
+    double calculateDistance(lat1, lon1, lat2, lon2) {
+      var p = 0.017453292519943295;
+      var c = cos;
+      var a = 0.5 - c((lat2 - lat1) * p) / 2 +
+          c(lat1 * p) * c(lat2 * p) *
+              (1 - c((lon2 - lon1) * p)) / 2;
+      return 12742 * asin(sqrt(a));
+    }
+    double totalDistance = 0;
+    for(var i = 0; i < geomertyList.length-1; i++){
+      totalDistance += calculateDistance(geomertyList[i].lat, geomertyList[i].lng, geomertyList[i+1].lat, geomertyList[i+1].lng);
+    }
+    print(totalDistance);
   }
 
   @override
