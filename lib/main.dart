@@ -62,9 +62,9 @@ class _MyHomePageState extends State<MyHomePage> {
     for(var i=0;i<allDataList.length;i++){
       geomertyList.add(new Geomerty.fromJson(allDataList[i]));
     }
-    print(isPointInPolygon(LatLng(50.8404969, -0.1504184),geomertyList));
+    print(isLocationWithinArea(LatLng(50.8404969, -0.1504184),geomertyList));
   }
-  bool isPointInPolygon(LatLng tap, Geomerty) {
+  bool isLocationWithinArea(LatLng tap, Geomerty) {
     int intersectCount = 0;
     for (int j = 0; j < geomertyList.length - 1; j++) {
       if (rayCastIntersect(tap, geomertyList[j], geomertyList[j + 1])) {
