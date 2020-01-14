@@ -1,9 +1,14 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:cirrus_map_view/figure_joint_type.dart';
 import 'package:cirrus_map_view/map_view.dart';
 import 'package:cirrus_map_view/polygon.dart';
+import 'package:cirrus_map_view/polygon.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:geo_location/Model/Geometry.dart';
+import 'package:geo_location/Model/Result.dart';
 import 'package:latlong/latlong.dart';
 var myKey = 'AIzaSyDuLQta4bmLunan6nyUIcQcQf1Og-rfnpg';
 
@@ -11,6 +16,7 @@ void main() {
   MapView.setApiKey(myKey);
   runApp(new MyApp());
 }
+
 
 class MyApp extends StatefulWidget {
   @override
@@ -32,9 +38,11 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
+  var allDataList = new List<dynamic>();
+  List<Geomerty> geomertyList = new List();
+  String assetsPath="assets/hub.json";
   MapView mapView = new MapView();
-
+  LatLng tap=LatLng(50.8200879, -0.1504184);
   List<Marker> markers = <Marker>[
     new Marker("1", "Great",50.8404969, -0.15041841,
         color: Colors.green, draggable: true)
@@ -42,62 +50,36 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    Timer.run(() {isPointInPolygon;});
+    Timer.run(() {loadJson();});
 
   }
 
-  List<Polygon> polygons = <Polygon>[
-    new Polygon(
-        "Nice one",
-        <Location>[
-          new Location(50.8404969, -0.1504184),
-          new Location(50.8400879, -0.1499697),
-          new Location(50.8397147,-0.149544),
-          new Location(50.8395274,-0.149197),
-          new Location(50.8391651,-0.1484959),
-          new Location(50.8390762 ,-0.1483239),
-        ],
-        jointType: FigureJointType.round,
-        strokeColor: Colors.blue,
-        strokeWidth: 10.0,
-        fillColor: Colors.blue.withOpacity(0.1))
-
-
-  ];
-
-  displayMap() {
-    mapView.show(new MapOptions(
-        mapViewType: MapViewType.normal,
-        initialCameraPosition:
-        new CameraPosition(new Location(50.8364603, -0.1510933), 14.0),
-        showUserLocation: false,
-        title: 'Google Map'));
-
-    mapView.onMapTapped.listen((tapped) {
-      mapView.setMarkers(markers);
-      mapView.setPolygons(polygons);
-      mapView.zoomToFit(padding: 100);
-    });
+  Future<String> loadJson() async {
+    String configJson = await DefaultAssetBundle.of(context).loadString("assets/hub.json");
+    var list =  json.decode(configJson);
+    allDataList.addAll(list['results']['geometry'][0]);
+    for(var i=0;i<allDataList.length;i++){
+      geomertyList.add(new Geomerty.fromJson(allDataList[i]));
+    }
+    print(isPointInPolygon(LatLng(50.8404969, -0.1504184),geomertyList));
   }
-
-  List vertices=new List<LatLng>();
-
-  bool isPointInPolygon(LatLng tap,vertices) {
+  bool isPointInPolygon(LatLng tap, Geomerty) {
     int intersectCount = 0;
-    for (int j = 0; j < vertices.size() - 1; j++) {
-      if (rayCastIntersect(tap, vertices.get(j), vertices.get(j + 1))) {
+    for (int j = 0; j < geomertyList.length - 1; j++) {
+      if (rayCastIntersect(tap, geomertyList[j], geomertyList[j + 1])) {
         intersectCount++;
       }
     }
 
     return ((intersectCount % 2) == 1); // odd = inside, even = outside;
   }
-  bool rayCastIntersect(LatLng tap, LatLng vertA, LatLng vertB) {
 
-    double aY = vertA.latitude;
-    double bY = vertB.latitude;
-    double aX = vertA.longitude;
-    double bX = vertB.longitude;
+  bool rayCastIntersect(LatLng tap, Geomerty vertA, Geomerty vertB) {
+
+    double aY = vertA.lat;
+    double bY = vertB.lat;
+    double aX = vertA.lng;
+    double bX = vertB.lng;
     double pY = tap.latitude;
     double pX = tap.longitude;
 
@@ -105,7 +87,6 @@ class _MyHomePageState extends State<MyHomePage> {
         || (aX < pX && bX < pX)) {
       return false; // a and b can't both be above or below pt.y, and a or
       // b must be east of pt.x
-
     }
 
     double m = (aY - bY) / (aX - bX); // Rise over run
@@ -114,8 +95,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
     return x > pX;
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -130,7 +109,7 @@ class _MyHomePageState extends State<MyHomePage> {
             color: Colors.blue,
             textColor: Colors.white,
             elevation: 7.0,
-            onPressed: displayMap,
+            onPressed: null,
           ),
         ),
       ),
