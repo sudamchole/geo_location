@@ -1,14 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
-
-import 'package:cirrus_map_view/figure_joint_type.dart';
 import 'package:cirrus_map_view/map_view.dart';
-import 'package:cirrus_map_view/polygon.dart';
-import 'package:cirrus_map_view/polygon.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:geo_location/Model/Geometry.dart';
-import 'package:geo_location/Model/Result.dart';
 import 'package:latlong/latlong.dart';
 var myKey = 'AIzaSyDuLQta4bmLunan6nyUIcQcQf1Og-rfnpg';
 
@@ -40,13 +34,10 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   var allDataList = new List<dynamic>();
   List<Geomerty> geomertyList = new List();
-  String assetsPath="assets/hub.json";
   MapView mapView = new MapView();
+
+ /* change latLng values to check diffrent geolocation are within area or not*/
   LatLng tap=LatLng(50.8200879, -0.1504184);
-  List<Marker> markers = <Marker>[
-    new Marker("1", "Great",50.8404969, -0.15041841,
-        color: Colors.green, draggable: true)
-  ];
   @override
   void initState() {
     super.initState();
@@ -62,7 +53,12 @@ class _MyHomePageState extends State<MyHomePage> {
     for(var i=0;i<allDataList.length;i++){
       geomertyList.add(new Geomerty.fromJson(allDataList[i]));
     }
-    print(isLocationWithinArea(LatLng(50.8404969, -0.1504184),geomertyList));
+    isLocationWithinArea(tap,geomertyList);
+
+    //uncomment below to print output on console
+   // print(isLocationWithinArea(LatLng(50.8404969, -0.1504184),geomertyList));
+
+
   }
   bool isLocationWithinArea(LatLng tap, Geomerty) {
     int intersectCount = 0;
