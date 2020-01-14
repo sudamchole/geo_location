@@ -47,6 +47,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   // ignore: missing_return
   Future<String> loadJson() async {
+    //add new json in to -assets and .yml file and change name below to check in the new json
     String configJson = await DefaultAssetBundle.of(context).loadString("assets/hub3.json");
     var list =  json.decode(configJson);
     allDataList.addAll(list['results']['geometry'][0]);
