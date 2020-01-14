@@ -54,6 +54,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   }
 
+  // ignore: missing_return
   Future<String> loadJson() async {
     String configJson = await DefaultAssetBundle.of(context).loadString("assets/hub.json");
     var list =  json.decode(configJson);
